@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+
+<html lang='en-us'>
+
+<head>
+
+    <meta charset='UTF-8'>
+    <title>GIPHYAPI</title>
+    <!-- Bootstrap CDN -->
+    <link rel='stylesheet' href='assets/css/reset.css'>
+    <link rel='stylesheet' href='assets/css/style.css'>
+    <link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css' integrity='sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7' crossorigin='anonymous'>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+</head>
+
+<body>
+
+    <br>
+    <br>
+    <div class='container'>
+        <div id="button-view"></div> <br>
+        <form id="topic-form">
+            <label for="topic-input">Add Topic</label>
+            <input type="text" id="topic-input">
+            <!-- Button triggers new movie to be added -->
+            <input id="add-topic" type="submit" value="Add a Topic">
+        </form>
+        <hr>
+
+        <div id="topics-view"></div>
+        <div class='topic-container'></div>
+
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src='assets/javascript/logic.js'></script>
+
+    <script type="text/javascript">
+        var topics = ['cat', 'dog', 'bird', 'fish'];
+
+        function alertMovieName() {
+            var movieName = $(this).data("name");
+
+            alert(movieName);
+        }
+
+        function appendButton() {
+            $("#button-view").empty();
+
+            for (var i = 0; i < topics.length; i++) {
+                var a = $("<button>");
+                a.addClass("topic");
+                a.attr("id", topics[i]);
+                a.attr("data-name", topics[i]);
+                a.attr("data-state", "animate");
+                a.text(topics[i]);
+                $("#button-view").append(a);
+            }
+        }
+
+        $("#add-topic").on("click", function(event) {
+            event.preventDefault();
+
+            var topic = $("#topic-input").val().trim();
+
+            topics.push(topic);
+
+            appendButton();
+
+        });
+
+        function renderImage() {
+            var queryString = $(this).attr('data-name');
+            $('.topic-container').html("<hr>");
+
+            var queryURL = "https://api.giphy.com/v1/gifs/search?api_key=dc6zaTOxFJmzC&q=" + queryString;
+            $.ajax({
+                url: queryURL,
+                method: 'GET'
+            }).done(function(response) {
+                console.log(response);
+                for (var i = 0; i < 10; i++) {
+                    $('.topic-container')
+                        .append("<img class=\"gif\" data-state=\"still\" \"  + src = \"" +
+                            response.data[i].images.fixed_height.url + "\" />");
+                }
+            });
+        };
+
+        function gifControl() {
+            // alert("gif");
+            // The attr jQuery method allows us to get or set the value of any attribute on our HTML element
+            var state = $(this).data("state");
+            alert(state);
+            // If the clicked image's state is still, update its src attribute to what its data-animate value is.
+            // Then, set the image's data-state to animate
+            // Else set src to the data-still value
+            if (state === "still") {
+                $(this).attr("src", $(this).data("animate"));
+                $(this).data("state", "animate");
+                console.log("Switched state: " + $(this).data("state"));
+            } else {
+                $(this).attr("src", $(this).data("still"));
+                $(this).data("state", "still");
+                console.log($(this).attr("src"));
+                console.log("Switched state: " + $(this).data("state"));
+
+            };
+            appendButton();
+        }
+
+        $(document).on("click", ".topic", renderImage);
+        $(document).on("click", ".gif", gifControl);
+        appendButton();
+    </script>
+
+</body>
+
+</html>
